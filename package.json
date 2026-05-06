@@ -1,0 +1,24 @@
+{
+  "name": "taskagent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TaskAgent — AI-powered task management SaaS for Japanese SMB teams",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=@taskagent/web",
+    "build": "npm run build --workspace=@taskagent/web",
+    "preview": "npm run preview --workspace=@taskagent/web",
+    "typecheck": "npm run typecheck --workspace=@taskagent/web",
+    "lint": "npm run lint --workspace=@taskagent/web",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset",
+    "supabase:push": "supabase db push",
+    "supabase:functions:serve": "supabase functions serve"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

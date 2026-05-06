@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    @apply bg-bg-page text-text-primary;
+    font-feature-settings: "tnum" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-bg-page;
+  }
+
+  /* v0.4 tabular-nums for KPI / table numerals */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-bg-card border border-border rounded-lg p-4;
+  }
+
+  .card-muted {
+    @apply bg-bg-sub rounded-md p-4;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center h-9 px-3 rounded text-sm font-medium border border-border
+           hover:bg-bg-sub active:scale-[0.98] transition-transform;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-white border-primary hover:bg-primary/90;
+  }
+
+  .input {
+    @apply h-9 px-3 rounded border border-border bg-bg-card text-sm
+           focus:border-primary focus:ring-2 focus:ring-primary/20;
+  }
+}
