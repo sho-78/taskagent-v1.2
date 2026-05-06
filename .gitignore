@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+apps/*/.env
+apps/*/.env.local
+.DS_Store
+.vscode/
+.idea/
+*.tsbuildinfo
+coverage/
+supabase/.branches
+supabase/.temp
+supabase/.env
