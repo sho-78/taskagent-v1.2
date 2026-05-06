@@ -9,9 +9,11 @@ export function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    const redirectTo =
+      window.location.origin + (import.meta.env.VITE_BASE_PATH ?? "/");
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: window.location.origin },
+      options: { emailRedirectTo: redirectTo },
     });
     if (error) setError(error.message);
     else setSent(true);
