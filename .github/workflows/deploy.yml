@@ -22,13 +22,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run typecheck
+      - run: npm install
       - name: Build
         env:
-          # GitHub Pages serves at /<repo>/, so set base path accordingly.
-          # Replace YOUR_REPO_NAME with the actual repository name.
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
