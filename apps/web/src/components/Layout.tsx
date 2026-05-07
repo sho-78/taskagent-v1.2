@@ -17,7 +17,7 @@ const navItems = [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { user, signOut } = useAuth();
+  const { user, organization, appUser, signOut } = useAuth();
   const location = useLocation();
 
   return (
@@ -25,8 +25,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <aside className="w-60 border-r border-border bg-bg-card flex flex-col">
         <div className="px-5 py-4 border-b border-border">
           <div className="text-base font-medium">TaskAgent</div>
-          <div className="text-xs text-text-secondary mt-0.5">
-            {user?.email}
+          <div className="text-sm text-text-primary mt-1.5 truncate">
+            {organization?.name ?? "組織情報を読み込み中..."}
+          </div>
+          <div className="text-xs text-text-secondary mt-0.5 truncate">
+            {appUser?.display_name ?? user?.email ?? ""}
+            {appUser?.role === "admin" && (
+              <span className="ml-1.5 inline-block px-1.5 py-px text-[10px] rounded bg-bg-sub text-text-secondary">
+                管理者
+              </span>
+            )}
           </div>
         </div>
         <nav className="flex-1 p-3 space-y-1">
