@@ -17,9 +17,9 @@ export type Organization = {
   status: string;
 };
 
-function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+function withTimeout<T>(thenable: PromiseLike<T>, ms: number, label: string): Promise<T> {
   return Promise.race([
-    promise,
+    Promise.resolve(thenable),
     new Promise<T>((_, reject) =>
       setTimeout(() => reject(new Error(`[useAuth] ${label} timed out after ${ms}ms`)), ms)
     ),
