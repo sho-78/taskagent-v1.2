@@ -25,25 +25,30 @@ export function useAuth() {
   const aliveRef = useRef(true);
 
   const loadProfile = useCallback(async (userId: string) => {
-    const { data: u } = await supabase
-      .from("app_user")
-      .select("id, org_id, email, display_name, role")
-      .eq("id", userId)
-      .maybeSingle();
-
-    if (!aliveRef.current) return;
-    setAppUser((u as AppUser | null) ?? null);
-
-    if (u?.org_id) {
-      const { data: o } = await supabase
-        .from("organization")
-        .select("id, name, plan, status")
-        .eq("id", u.org_id)
+    try {
+      const { data: u, error: uErr } = await supabase
+        .from("app_user")
+        .select("id, org_id, email, display_name, role")
+        .eq("id", userId)
         .maybeSingle();
       if (!aliveRef.current) return;
-      setOrganization((o as Organization | null) ?? null);
-    } else {
-      setOrganization(null);
+      if (uErr) console.error("[useAuth] load app_user error:", uErr);
+      setAppUser((u as AppUser | null) ?? null);
+
+      if (u?.org_id) {
+        const { data: o, error: oErr } = await supabase
+          .from("organization")
+          .select("id, name, plan, status")
+          .eq("id", u.org_id)
+          .maybeSingle();
+        if (!aliveRef.current) return;
+        if (oErr) console.error("[useAuth] load organization error:", oErr);
+        setOrganization((o as Organization | null) ?? null);
+      } else {
+        setOrganization(null);
+      }
+    } catch (err) {
+      console.error("[useAuth] loadProfile threw:", err);
     }
   }, []);
 
@@ -51,13 +56,21 @@ export function useAuth() {
     aliveRef.current = true;
 
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      if (!aliveRef.current) return;
-      setSession(data.session);
-      if (data.session?.user) {
-        await loadProfile(data.session.user.id);
+      try {
+        console.log("[useAuth] init start");
+        const { data, error } = await supabase.auth.getSession();
+        if (error) console.error("[useAuth] getSession error:", error);
+        if (!aliveRef.current) return;
+        setSession(data.session);
+        if (data.session?.user) {
+          await loadProfile(data.session.user.id);
+        }
+      } catch (err) {
+        console.error("[useAuth] init threw:", err);
+      } finally {
+        if (aliveRef.current) setLoading(false);
+        console.log("[useAuth] init done");
       }
-      setLoading(false);
     })();
 
     const {
