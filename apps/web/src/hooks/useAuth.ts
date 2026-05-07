@@ -17,6 +17,15 @@ export type Organization = {
   status: string;
 };
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`[useAuth] ${label} timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+}
+
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null);
   const [appUser, setAppUser] = useState<AppUser | null>(null);
@@ -26,29 +35,40 @@ export function useAuth() {
 
   const loadProfile = useCallback(async (userId: string) => {
     try {
-      const { data: u, error: uErr } = await supabase
-        .from("app_user")
-        .select("id, org_id, email, display_name, role")
-        .eq("id", userId)
-        .maybeSingle();
+      const { data: u, error: ue } = await withTimeout(
+        supabase
+          .from("app_user")
+          .select("id, org_id, email, display_name, role")
+          .eq("id", userId)
+          .maybeSingle(),
+        8000,
+        "load app_user"
+      );
+      if (ue) console.warn("[useAuth] app_user error:", ue);
       if (!aliveRef.current) return;
-      if (uErr) console.error("[useAuth] load app_user error:", uErr);
       setAppUser((u as AppUser | null) ?? null);
 
       if (u?.org_id) {
-        const { data: o, error: oErr } = await supabase
-          .from("organization")
-          .select("id, name, plan, status")
-          .eq("id", u.org_id)
-          .maybeSingle();
+        const { data: o, error: oe } = await withTimeout(
+          supabase
+            .from("organization")
+            .select("id, name, plan, status")
+            .eq("id", u.org_id)
+            .maybeSingle(),
+          8000,
+          "load organization"
+        );
+        if (oe) console.warn("[useAuth] organization error:", oe);
         if (!aliveRef.current) return;
-        if (oErr) console.error("[useAuth] load organization error:", oErr);
         setOrganization((o as Organization | null) ?? null);
       } else {
         setOrganization(null);
       }
-    } catch (err) {
-      console.error("[useAuth] loadProfile threw:", err);
+    } catch (e) {
+      console.error("[useAuth] loadProfile failed:", e);
+      if (!aliveRef.current) return;
+      setAppUser(null);
+      setOrganization(null);
     }
   }, []);
 
@@ -57,19 +77,20 @@ export function useAuth() {
 
     (async () => {
       try {
-        console.log("[useAuth] init start");
-        const { data, error } = await supabase.auth.getSession();
-        if (error) console.error("[useAuth] getSession error:", error);
+        const { data } = await withTimeout(
+          supabase.auth.getSession(),
+          8000,
+          "getSession"
+        );
         if (!aliveRef.current) return;
         setSession(data.session);
         if (data.session?.user) {
           await loadProfile(data.session.user.id);
         }
-      } catch (err) {
-        console.error("[useAuth] init threw:", err);
+      } catch (e) {
+        console.error("[useAuth] init failed:", e);
       } finally {
         if (aliveRef.current) setLoading(false);
-        console.log("[useAuth] init done");
       }
     })();
 
