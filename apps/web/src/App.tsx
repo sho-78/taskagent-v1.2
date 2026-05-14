@@ -5,6 +5,8 @@ import { Home } from "@/pages/Home";
 import { Tasks } from "@/pages/Tasks";
 import { Kpi } from "@/pages/Kpi";
 import { Settings } from "@/pages/Settings";
+import { InviteAccept } from "@/pages/InviteAccept";
+import { CrossOrgAccept } from "@/pages/CrossOrgAccept";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function App() {
@@ -34,6 +36,8 @@ export default function App() {
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/kpi" element={<Kpi />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/invite/accept" element={<InviteAccept />} />
+        <Route path="/cross-org/accept" element={<CrossOrgAccept />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
